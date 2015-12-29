@@ -12,23 +12,20 @@ class EventReporter
 
   def load_file(path)
     if File.exist?("lib/#{path}")
-      CSV.open "lib/#{path}", headers: true
+      CSV.open "lib/#{path}", headers: true, :header_converters => :downcase
     else
       CSV.foreach "lib/event_attendees.csv", headers: true, :header_converters => :downcase
     end
   end
 
   def queue_count
-    # (@queue.nil?) ? (puts "#{@file.count} records") : (puts "#{@queue.count} records")
     puts "#{@queue.count} records in the queue"
   end
 
   def find(attribute, criteria)
     @queue = []
-    @queue << @file.first.to_h.keys
-    binding.pry
     @file.each do |row|
-      @queue << row.to_h.values if row[attribute].downcase == criteria.downcase
+      @queue << [row.to_h["last_name"], row.to_h["first_name"], row.to_h["email_address"], row.to_h["zipcode"], row.to_h["city"], row.to_h["state"], row.to_h["street"], row.to_h["homephone"]] if row[attribute].downcase == criteria.downcase
     end
     puts "#{@queue.count} matching records found"
   end
@@ -39,12 +36,8 @@ class EventReporter
   end
 
   def queue_print
-    puts Terminal::Table.new :rows => @queue
+    puts Terminal::Table.new :headings => ['Last Name', 'First Name', 'Email', 'Zipcode', 'City', 'State', 'Address', 'Phone'], :rows => @queue
   end
-
-  # def print_row(row)
-  #   puts "#{row['last_name']}    " + "#{row['first_name']}    " + "#{row['email_address']}    " + "#{row['zipcode']}    "
-  # end
 
   def queue_clear
     @queue = []
@@ -52,9 +45,7 @@ class EventReporter
   end
 
   def print_by(attribute)
-    @queue.sort_by!{ |hash| hash[attribute] }
-    binding.pry
-    @queue.each { |row| puts row.values.join('  ') }
+    @queue.sort_by { |last_name, first_name, email, zipcode, city, state, address, phone| attribute }
   end
 
   def main
