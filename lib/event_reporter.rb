@@ -25,9 +25,13 @@ class EventReporter
   def find(attribute, criteria)
     @queue = []
     @file.each do |row|
-      @queue << [row.to_h["last_name"], row.to_h["first_name"], row.to_h["email_address"], row.to_h["zipcode"], row.to_h["city"], row.to_h["state"], row.to_h["street"], row.to_h["homephone"]] if row[attribute].downcase == criteria.downcase
+      (@queue << data(row) if row[attribute].downcase == criteria.downcase) unless row[attribute].nil?
     end
     puts "#{@queue.count} matching records found"
+  end
+
+  def data(row)
+    [row.to_h["last_name"], row.to_h["first_name"], row.to_h["email_address"], row.to_h["zipcode"], row.to_h["city"], row.to_h["state"], row.to_h["street"], row.to_h["homephone"]]
   end
 
   def help
@@ -52,7 +56,7 @@ class EventReporter
     puts "Issue next Event Reporter command..."
     command = gets.chomp.downcase
     @file = load_file(command.split(" ").last) if command.include?('load')
-    find(command.split(" ")[1], command.split(" ").last) if command.include?('find')
+    find(command.split(" ")[1], command.split(" ")[2..-1].join(" ")) if command.include?('find')
     print_by(command.split(" ").last)if command.include?('queue print by')
     case command
     when 'queue count' then queue_count
