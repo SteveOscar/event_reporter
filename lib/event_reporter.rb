@@ -3,7 +3,7 @@ require 'pry'
 require 'terminal-table'
 
 class EventReporter
-  attr_reader :file, :queue
+  attr_accessor :file, :queue
 
   def initialize
     @queue = []
@@ -19,7 +19,7 @@ class EventReporter
   end
 
   def queue_count
-    puts "#{@queue.count} records in the queue"
+    "#{@queue.count} records in the queue"
   end
 
   def find(attribute, criteria)
@@ -27,7 +27,7 @@ class EventReporter
     @file.each do |row|
       (@queue << data(row) if row[attribute].downcase == criteria.downcase) unless row[attribute].nil?
     end
-    puts "#{@queue.count} matching records found"
+    "#{@queue.count} matching records found"
   end
 
   def data(row)
@@ -35,6 +35,7 @@ class EventReporter
   end
 
   def help
+    print: "Available commands:"
     print "commands: load <filename>, help, help <specific command>, queue count, queue print,"
     print "queue print by <attribute>, queue save to <filename>, find <attribute> <criteria>, queue clear"
   end
@@ -45,11 +46,12 @@ class EventReporter
 
   def queue_clear
     @queue = []
-    puts "queue cleared to 0 records"
+    "queue cleared to 0 records"
   end
 
   def print_by(attribute)
-    @queue.sort_by { |last_name, first_name, email, zipcode, city, state, address, phone| attribute }
+    data = @queue.sort_by { |last_name, first_name, email, zipcode, city, state, address, phone| attribute }
+    puts Terminal::Table.new :headings => ['Last Name', 'First Name', 'Email', 'Zipcode', 'City', 'State', 'Address', 'Phone'], :rows => data
   end
 
   def save(filename)
@@ -68,16 +70,18 @@ class EventReporter
     print_by(command.split(" ").last)if command.include?('queue print by')
     save(command.split(" ").last)if command.include?('save')
     case command
-    when 'queue count' then queue_count
-    when 'help' then help
-    when 'queue print' then queue_print
-    when 'queue clear' then queue_clear
+      when 'queue count' then queue_count
+      when 'help' then help
+      when 'queue print' then queue_print
+      when 'queue clear' then queue_clear
     end
   end
 
 end
-rep = EventReporter.new
 
-loop do
-  rep.main
+if __FILE__ == $0
+  rep = EventReporter.new
+  loop do
+    rep.main
+  end
 end
