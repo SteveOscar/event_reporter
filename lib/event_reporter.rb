@@ -52,12 +52,21 @@ class EventReporter
     @queue.sort_by { |last_name, first_name, email, zipcode, city, state, address, phone| attribute }
   end
 
+  def save(filename)
+    CSV.open(filename, 'w') do |csv_object|
+      @queue.each do |row_array|
+        csv_object << row_array
+      end
+    end
+  end
+
   def main
     puts "Issue next Event Reporter command..."
     command = gets.chomp.downcase
     @file = load_file(command.split(" ").last) if command.include?('load')
     find(command.split(" ")[1], command.split(" ")[2..-1].join(" ")) if command.include?('find')
     print_by(command.split(" ").last)if command.include?('queue print by')
+    save(command.split(" ").last)if command.include?('save')
     case command
     when 'queue count' then queue_count
     when 'help' then help
@@ -65,15 +74,6 @@ class EventReporter
     when 'queue clear' then queue_clear
     end
   end
-
-  # load <filename>
-  # help
-  # help <command>
-  # queue count
-  # queue print
-  # queue print by <attribute>
-  # queue save to <filename>
-  # find <attribute> <criteria>
 
 end
 rep = EventReporter.new
