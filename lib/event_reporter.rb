@@ -19,6 +19,7 @@ class EventReporter
   end
 
   def queue_count
+    puts "#{@queue.count} records in the queue"
     "#{@queue.count} records in the queue"
   end
 
@@ -27,7 +28,7 @@ class EventReporter
     @file.each do |row|
       (@queue << data(row) if row[attribute].downcase == criteria.downcase) unless row[attribute].nil?
     end
-    "#{@queue.count} matching records found"
+    print "#{@queue.count} matching records found"
   end
 
   def data(row)
@@ -35,7 +36,7 @@ class EventReporter
   end
 
   def help
-    print: "Available commands:"
+    print "Available commands:"
     print "commands: load <filename>, help, help <specific command>, queue count, queue print,"
     print "queue print by <attribute>, queue save to <filename>, find <attribute> <criteria>, queue clear"
   end
@@ -50,8 +51,10 @@ class EventReporter
   end
 
   def print_by(attribute)
-    data = @queue.sort_by { |last_name, first_name, email, zipcode, city, state, address, phone| attribute }
+    headers = ["last_name", "first_name", "email", "zipcode", "city", "state", "address", "phone"]
+    data = @queue.sort_by { |array| array[headers.index(attribute)] }
     puts Terminal::Table.new :headings => ['Last Name', 'First Name', 'Email', 'Zipcode', 'City', 'State', 'Address', 'Phone'], :rows => data
+    data
   end
 
   def save(filename)

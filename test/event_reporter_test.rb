@@ -22,7 +22,7 @@ class EventReporterTest < Minitest::Test
     @rep.find('first_name', 'mary')
     result = @rep.queue_count
     message = "16 records in the queue"
-    assert_equal result, message
+    assert_equal message, result
   end
 
   def test_row_parsing
@@ -44,14 +44,19 @@ class EventReporterTest < Minitest::Test
 
   def test_queue_clear
     @rep.find('first_name', 'mary')
-
     assert_equal 16, @rep.queue.count
 
     @rep.queue_clear
-
     assert_equal 0, @rep.queue.count
   end
 
+  def test_print_by
+    @rep.find('first_name', 'mary')
+    assert_equal @rep.queue.first[0], "Browne"
+
+    sorted = @rep.print_by("last_name")
+    assert_equal sorted.first[0], "Bastias"
+  end
 
 
 
